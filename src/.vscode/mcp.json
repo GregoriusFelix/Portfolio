@@ -1,0 +1,14 @@
+{
+  "servers": {
+    "react-bits": {
+      "type": "stdio",
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "react-bits-mcp-server"
+      ]
+    }
+  }
+}
