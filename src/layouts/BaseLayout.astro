@@ -1,0 +1,30 @@
+---
+import '../styles/global.css';
+import Navbar from '../components/Navbar.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+const { title, description = 'Portfolio of a developer and designer.' } = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✦</text></svg>" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <Navbar />
+    <main><slot /></main>
+    <footer class="wrap section muted">
+      <p>© {new Date().getFullYear()} Your Name. <a href="mailto:you@example.com">you@example.com</a></p>
+    </footer>
+  </body>
+</html>
