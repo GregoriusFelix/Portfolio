@@ -1,13 +1,15 @@
 {
   "servers": {
-    "react-bits": {
+    "shadcn": {
       "type": "stdio",
       "command": "cmd",
+      "cwd": "${workspaceFolder}",
       "args": [
         "/c",
         "npx",
         "-y",
-        "react-bits-mcp-server"
+        "shadcn@latest",
+        "mcp"
       ]
     }
   }
