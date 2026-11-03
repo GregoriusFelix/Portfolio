@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { profile } from '../../profile';
 
 export async function getStaticPaths() {
   const projects = await getCollection('work', ({ data }) => !data.draft);
@@ -14,7 +15,7 @@ const { project } = Astro.props;
 const { Content } = await render(project);
 const { title, summary, role, year, tools, liveUrl, repoUrl } = project.data;
 ---
-<BaseLayout title={`${title} | Felix Erawan`} description={summary}>
+<BaseLayout title={`${title} | ${profile.shortName}`} description={summary}>
   <article class="wrap section">
     <h1>{title}</h1>
     <p class="prose muted">{summary}</p>

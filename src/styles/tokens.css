@@ -15,6 +15,10 @@
   --color-accent: oklch(49% 0.265 264); --color-accent-ink: oklch(98% 0.003 260); --color-focus: oklch(49% 0.265 264);
   --color-clear: transparent; --color-on-dark-muted: oklch(79% 0.01 260);
   --color-cursor-1: oklch(80% 0.18 130); --color-cursor-2: oklch(82% 0.14 80); --color-cursor-3: oklch(80% 0.12 210);
+  --color-swarm-orange: oklch(70% 0.2 35); --color-swarm-green: oklch(72% 0.19 155); --color-swarm-purple: oklch(67% 0.23 300);
+  --color-swarm-cyan: oklch(75% 0.16 220); --color-swarm-pink: oklch(69% 0.2 355); --color-swarm-yellow: oklch(86% 0.18 90); --color-swarm-blue: oklch(67% 0.2 250);
+  --color-tool-selection: oklch(70% 0.17 240); --color-tool-duplicate: oklch(68% 0.2 30);
+  --color-scan-mark: oklch(69% 0.005 260); --color-toolbar-shadow: oklch(15% 0.01 260 / 0.2);
   --font-display: 'Bricolage Grotesque', system-ui, sans-serif; --font-body: 'Bricolage Grotesque', system-ui, sans-serif; --font-outlier: var(--font-body);
   --radius-card: 4px; --radius-pill: 999px; --rule-hair: 1px; --shadow-card: none;
   --tracking-display: -0.02em;
