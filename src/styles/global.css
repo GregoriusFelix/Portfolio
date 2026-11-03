@@ -1052,3 +1052,16 @@ h3 {
   transform-origin: top left;
   pointer-events: none;
 }
+.swarm-trial-label {
+  position: absolute;
+  padding: 3px 7px;
+  border: 1px solid;
+  border-radius: 2px;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: 10px;
+  line-height: 16px;
+  white-space: nowrap;
+  pointer-events: none;
+}

@@ -9,6 +9,7 @@ export function createSwarmScene() {
   const animations: Animation[] = [];
   const jobs: Job[] = [];
   const tracks: CursorTask[][] = Array.from({ length: AGENTS }, () => []);
+  const editable = new Map<HTMLElement, HTMLElement>();
   const root = getComputedStyle(document.documentElement);
   const easeOut = root.getPropertyValue("--ease-out").trim();
   const easeInOut = root.getPropertyValue("--ease-in-out").trim();
@@ -94,6 +95,7 @@ export function createSwarmScene() {
     node.style.transformOrigin = "top left";
     node.style.transform = `scale(${scale})`;
     show(node, start);
+    editable.set(item.source, node);
     const geometry = textGeometry(item.source);
     const origin = item.rect;
     const point = (progress: number) => geometry.steps[Math.min(geometry.steps.length - 1, Math.floor(progress * (geometry.steps.length - 1)))];
@@ -144,6 +146,52 @@ export function createSwarmScene() {
       y: vertical ? rect.top + rect.height * bezier(progress, drawCurve) : rect.bottom,
     }));
   }
+  function experiment(item: Snapshot, agent: number, start: number, duration: number, kind: "size" | "font" | "color") {
+    const node = editable.get(item.source);
+    if (!node || item.rect.top >= innerHeight) return;
+    const rect = item.rect;
+    const color = cursorColor(agent);
+    const strength = kind === "size" ? 1.35 : 1;
+    const amount = (progress: number) => progress < 0.3
+      ? bezier(progress / 0.3, [0.23, 1, 0.32, 1])
+      : progress < 0.65 ? 1 : 1 - bezier((progress - 0.65) / 0.35, drawCurve);
+    const states = (original: string | number, trial: string | number, property: string): Keyframe[] => [
+      { [property]: original, offset: 0, easing: easeOut },
+      { [property]: trial, offset: 0.3 },
+      { [property]: trial, offset: 0.65, easing: easeInOut },
+      { [property]: original, offset: 1 },
+    ];
+    const box = frame(rect, start, duration);
+    box.style.borderColor = color;
+    jobs.at(-1)!.badge.hidden = true;
+    if (kind === "size") {
+      const frames = states("scale(1)", `scale(${strength})`, "transform");
+      animate(node, frames, start, duration, "linear").effect!.updateTiming({ fill: "forwards" });
+      animate(box, frames, start, duration, "linear");
+      node.dataset.swarmSizeTrial = "true";
+    } else {
+      const preview = clone(item);
+      preview.dataset.swarmTrial = kind;
+      if (kind === "font") preview.style.fontFamily = "Georgia, serif";
+      else preview.style.color = "var(--color-swarm-yellow)";
+      animate(preview, states(0, 1, "opacity"), start, duration, "linear");
+      animate(node, states(1, 0, "opacity"), start, duration, "linear").effect!.updateTiming({ fill: "forwards" });
+    }
+    const tag = (text: string, time: number, length: number) => {
+      const label = document.createElement("span");
+      label.className = "swarm-trial-label";
+      label.textContent = text;
+      Object.assign(label.style, { left: `${rect.left}px`, top: `${Math.max(20, rect.top - 26)}px`, borderColor: color });
+      windowOf(label, time, length);
+      build.append(label);
+    };
+    tag(kind === "size" ? "Try larger" : kind === "font" ? "Try serif" : "Try color", start, duration * 0.65);
+    tag("Undo", start + duration * 0.65, duration * 0.35);
+    task(agent, start, duration, `Try ${kind} and undo`, kind === "font" ? "ibeam" : "arrow", progress => ({
+      x: kind === "size" ? rect.left + rect.width * (1 + (strength - 1) * amount(progress)) : rect.left + rect.width * 0.65,
+      y: kind === "size" ? rect.top + rect.height * (1 + (strength - 1) * amount(progress)) : rect.top + rect.height * 0.65,
+    }));
+  }
   function duplicate(item: Snapshot, destination: Snapshot, agent: number, start: number, duration: number, name: string, hold = 0) {
     const clip = document.createElement("div");
     clip.className = "swarm-duplicate-clip";
@@ -160,6 +208,60 @@ export function createSwarmScene() {
     windowOf(clip, start, duration + hold);
     const x = item.rect.left + Math.min(32, item.rect.width * 0.2), y = item.rect.top + Math.min(25, item.rect.height * 0.35);
     task(agent, start, duration, name, "arrow", progress => { const amount = bezier(progress, drawCurve); return { x: x + dx * amount, y: y + dy * amount }; });
+  }
+
+  function buildWorkFolder() {
+    if (folder.rect.top >= innerHeight) return;
+    if (!matchMedia("(max-width: 760px)").matches) {
+      draw({ ...folder, rect: new DOMRect(folder.rect.left, folder.rect.top, folder.rect.width, Math.min(folder.rect.height, innerHeight - folder.rect.top - 16)) }, 13, 1450, 650, "Build first folder");
+      return;
+    }
+    const node = clone(folder);
+    node.style.lineHeight = String(parseFloat(folder.style.lineHeight) / parseFloat(folder.style.fontSize));
+    node.dataset.swarmMobileFolder = "true";
+    show(node, 1450);
+    const tab = snapshot(".folder-work .folder-tab");
+    const body = snapshot(".folder-work .folder-body");
+    const tabNode = node.querySelector<HTMLElement>(".folder-tab")!;
+    const bodyNode = node.querySelector<HTMLElement>(".folder-body")!;
+    tabNode.querySelectorAll<HTMLElement>("span").forEach(text => text.style.opacity = "0");
+    tabNode.style.transformOrigin = "center bottom";
+    const tabFrames = [{ transform: "scaleX(.04)" }, { transform: "scaleX(1)" }];
+    animate(tabNode, tabFrames, 1450, 340, easeInOut);
+    const tabFrame = frame(tab.rect, 1450, 340);
+    tabFrame.style.transformOrigin = "center bottom";
+    animate(tabFrame, tabFrames, 1450, 340, easeInOut);
+    jobs.at(-1)!.badge.hidden = true;
+    task(13, 1450, 340, "Form work-folder tab", "crosshair", progress => ({ x: tab.rect.left + tab.rect.width * (0.5 + 0.5 * (0.04 + 0.96 * bezier(progress, drawCurve))), y: tab.rect.bottom }));
+    animate(bodyNode, [{ opacity: 0, transform: "translateY(-8px)" }, { opacity: 1, transform: "translateY(0px)" }], 1830, 360, easeOut);
+    const bodyHeight = Math.min(body.rect.height, innerHeight - body.rect.top - 12);
+    if (bodyHeight > 12) inspect({ ...body, rect: new DOMRect(body.rect.left, body.rect.top, body.rect.width, bodyHeight) }, 13, 1830, 360, "Unfold work-folder body", true);
+    type(snapshot(".folder-work .folder-tab > span:first-child"), 3, 1850, 180, "Type folder number", "var(--color-field)");
+    type(snapshot(".folder-work .folder-tab > span:last-child"), 7, 2070, 330, "Type Selected work", "var(--color-field)");
+    const title = snapshot("#work-title");
+    if (title.rect.top + title.rect.height * 0.6 < innerHeight - 12) {
+      node.querySelector<HTMLElement>(".section-heading h2")!.style.opacity = "0";
+      type(title, 8, 2530, 500, "Type The work folder", "var(--color-field)");
+    }
+    const heading = snapshot(".folder-work .section-heading");
+    if (heading.rect.bottom < innerHeight - 12) {
+      node.querySelector<HTMLElement>(".section-heading")!.style.borderBottomColor = "transparent";
+      const divider = document.createElement("div");
+      divider.className = "swarm-measure-line";
+      Object.assign(divider.style, { left: `${heading.rect.left}px`, top: `${heading.rect.bottom - 1}px`, width: `${heading.rect.width}px`, height: "1px", background: "var(--color-field-ink)" });
+      show(divider, 3200);
+      animate(divider, [{ transform: "scaleX(.02)" }, { transform: "scaleX(1)" }], 3200, 300, easeInOut);
+      build.append(divider);
+      task(9, 3200, 300, "Draw folder divider", "crosshair", progress => ({ x: heading.rect.left + heading.rect.width * (0.02 + 0.98 * bezier(progress, drawCurve)), y: heading.rect.bottom - 1 }));
+    }
+    const content = node.querySelector<HTMLElement>(".empty-work,.project-grid");
+    if (content) animate(content, [{ opacity: 0, transform: "translateY(6px)" }, { opacity: 1, transform: "translateY(0px)" }], 3440, 220, easeOut);
+    const source = folder.source.querySelector<HTMLElement>(".empty-work,.project-grid");
+    if (source) {
+      const contentRect = source.getBoundingClientRect();
+      const visibleHeight = Math.min(contentRect.height, innerHeight - contentRect.top - 12);
+      if (visibleHeight > 16) inspect({ source, rect: new DOMRect(contentRect.left, contentRect.top, contentRect.width, visibleHeight), style: getComputedStyle(source) }, 6, 3440, 260, "Place folder contents");
+    }
   }
 
   const mark = document.createElement("div");
@@ -208,7 +310,7 @@ export function createSwarmScene() {
   navCopy(nav[2], 9, 1880, 340);
   type(nav[1], 8, 2120, 260, "Replace About label", "var(--color-paper)");
   type(nav[2], 9, 2470, 260, "Replace Contact label", "var(--color-paper)");
-  if (folder.rect.top < innerHeight) draw({ ...folder, rect: new DOMRect(folder.rect.left, folder.rect.top, folder.rect.width, Math.min(folder.rect.height, innerHeight - folder.rect.top - 16)) }, 13, 1450, 650, "Build first folder");
+  buildWorkFolder();
   type(caption, 0, 1650, 280, "Type folder link", "var(--color-paper)");
 
   const small = 18 / parseFloat(first.style.fontSize);
@@ -227,8 +329,19 @@ export function createSwarmScene() {
   type(replay, 11, 2780, 320, "Type replay control", "var(--color-field)");
   outline(role, 12, 2240, 220, "Frame role");
   type(role, 12, 2640, 280, "Type software engineer", "var(--color-field)");
-  const selectionNode = draw(selection, 5, 2390, 390, "Draw title selection");
-  selectionNode.style.opacity = selection.style.opacity;
+  const extendedRight = Math.max(selection.rect.right, hero.rect.right - Math.max(16, parseFloat(hero.style.paddingRight) / 2));
+  const extended = new DOMRect(selection.rect.left, selection.rect.top, extendedRight - selection.rect.left, selection.rect.height);
+  const expansion = extended.width / selection.rect.width;
+  const selectionNode = clone(selection);
+  selectionNode.dataset.swarmSelection = "true";
+  selectionNode.style.transformOrigin = "top left";
+  show(selectionNode, 2390, parseFloat(selection.style.opacity));
+  animate(selectionNode, [{ transform: `scale(${expansion * 0.02},.02)` }, { transform: `scale(${expansion},1)` }], 2390, 390, "linear");
+  frame(extended, 2390, 390, true, true);
+  task(5, 2390, 390, "Draw extended title selection", "crosshair", progress => ({ x: extended.left + extended.width * (0.02 + 0.98 * progress), y: extended.top + extended.height * (0.02 + 0.98 * progress) }));
+  const resize = animate(selectionNode, [{ transform: `scale(${expansion},1)` }, { transform: "scale(1,1)" }], 4930, 360, easeInOut);
+  resize.effect!.updateTiming({ fill: "forwards" });
+  task(5, 4930, 360, "Resize outer frame to fit Felix", "arrow", progress => ({ x: extended.right + (selection.rect.right - extended.right) * bezier(progress, drawCurve), y: selection.rect.bottom }));
   draw(author, 6, 2320, 160, "Draw author tag", "var(--color-field-ink)");
   type(author, 6, 2830, 240, "Type author tag", "var(--color-field-ink)");
   draw(button, 2, 2220, 300, "Draw portfolio button", "var(--color-field-ink)");
@@ -236,7 +349,8 @@ export function createSwarmScene() {
   buttonText.querySelectorAll<HTMLElement>('[aria-hidden="true"]').forEach(node => show(node, 3300));
   inspect(button, 6, 3160, 170, "Place button icon", true);
 
-  duplicate(first, second, 1, 3450, 640, "Duplicate title into second line", 500);
+  const duplicateTarget = { ...second, rect: new DOMRect(Math.max(first.rect.left, extended.right - 16 - first.rect.width), second.rect.top, first.rect.width, second.rect.height) };
+  duplicate(first, duplicateTarget, 1, 3450, 640, "Duplicate title into second line", 500);
   type(second, 2, 4590, 340, "Replace duplicate with Felix", "var(--color-field)");
   const checks: [Snapshot, number, number, string][] = [
     [monogram, 3, 3650, "Check logo size"], [identity, 7, 3870, "Check identity alignment"],
@@ -244,13 +358,18 @@ export function createSwarmScene() {
     [nav[2], 9, 4140, "Check Contact spacing"], [label, 10, 3540, "Check label alignment"],
     [replay, 11, 3830, "Check replay bounds"], [role, 12, 3910, "Check role baseline"],
     [author, 6, 4750, "Check author tag bounds"], [button, 0, 4210, "Check button size"],
-    [selection, 5, 4400, "Measure title alignment"], [caption, 13, 4320, "Check folder caption"],
+    [caption, 13, 4320, "Check folder caption"],
   ];
   checks.forEach(([item, agent, start, name]) => inspect(item, agent, start, Math.min(260, 5000 - start), name, agent % 2 === 0));
+  experiment(caption, 0, 2140, 640, "size");
+  experiment(label, 10, 2820, 620, "size");
+  experiment(role, 12, 3020, 720, "font");
+  experiment(replay, 11, 3190, 540, "color");
   const bounds = hero.rect;
   const panelWindow = `path(evenodd, "M0 0H${innerWidth}V${innerHeight}H0Z M${bounds.left} ${bounds.top}H${bounds.right}V${bounds.bottom}H${bounds.left}Z")`;
   animate(backdrop, [{ clipPath: "none" }, { clipPath: panelWindow }], 1540, 1, "steps(1,end)");
-  animate(surface, [{ opacity: 1 }, { opacity: 0 }], 1540, 1, "steps(1,end)");
+  const revealPanel = animate(surface, [{ opacity: 1 }, { opacity: 0 }], 1540, 1, "steps(1,end)");
+  revealPanel.effect!.updateTiming({ fill: "forwards" });
   animate(build, [{ opacity: 1 }, { opacity: 0 }], TOTAL, 150);
   const cursors = createCursors(tracks, { x: innerWidth, y: innerHeight }, TOTAL);
   for (const child of hero.source.children) {
