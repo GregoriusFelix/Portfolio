@@ -34,8 +34,7 @@ export function initSwarmIntro() {
   let deadline: ReturnType<typeof setTimeout> | undefined;
   let previousFocus: HTMLElement | null = null;
   let inertBefore: boolean[] = [];
-  let savedOverflow = "",
-    savedPadding = "";
+  let savedOverflow = "";
   let drawCurve = [0.77, 0, 0.175, 1];
 
   function remember() {
@@ -57,8 +56,7 @@ export function initSwarmIntro() {
     app.forEach((node, index) => {
       node.inert = inertBefore[index] ?? false;
     });
-    document.body.style.overflowY = savedOverflow;
-    document.body.style.paddingRight = savedPadding;
+    document.documentElement.style.overflowY = savedOverflow;
     if (previousFocus?.isConnected && previousFocus !== document.body) previousFocus.focus({ preventScroll: true });
   }
   function finish() {
@@ -78,9 +76,9 @@ export function initSwarmIntro() {
     if (!active || !master || paused) return;
     const time = Number(master.currentTime ?? 0);
     const done = jobs.filter((job) => time >= job.start + job.duration).length;
-    const message = time < 1200 ? "Scanning page…" : time >= contentDuration ? "Entering site…" : `${AGENTS} agents`;
+    const message = time < 900 ? "Scanning page…" : time >= contentDuration ? "Entering site…" : `${AGENTS} agents`;
     if (status!.textContent !== message) status!.textContent = message;
-    const count = time < 1200 ? "" : `${done} / ${jobs.length} layers`;
+    const count = time < 900 ? "" : `${done} / ${jobs.length} layers`;
     if (layers!.textContent !== count) {
       layers!.textContent = count;
       progressFill!.style.transform = `scaleX(${done / Math.max(1, jobs.length)})`;
@@ -89,8 +87,9 @@ export function initSwarmIntro() {
     jobs.forEach((job) => {
       if (!job.drawing || time < job.start || time > job.start + job.duration) return;
       const progress = clamp((time - job.start) / job.duration);
-      const amount = 0.02 + 0.98 * (job.linear ? progress : bezier(progress, drawCurve));
-      const label = `${Math.round(job.rect.width * amount)} × ${Math.round(job.rect.height * amount)}`;
+      const initial = job.scaleFrom ?? 0.02;
+      const amount = initial + (1 - initial) * (job.linear ? progress : bezier(progress, drawCurve));
+      const label = job.measurement ? `${Math.round((job.measurement === "x" ? job.rect.width : job.rect.height) * amount)} px` : `${Math.round(job.rect.width * amount)} \u00d7 ${Math.round(job.rect.height * amount)}`;
       if (job.badge.textContent !== label) job.badge.textContent = label;
     });
     monitorFrame = requestAnimationFrame(monitor);
@@ -100,17 +99,13 @@ export function initSwarmIntro() {
     if (active || preparing || reduced.matches || document.hidden) return;
     preparing = true;
     const request = generation;
-    await Promise.race([document.fonts.ready, new Promise((resolve) => setTimeout(resolve, 900))]);
+    await document.fonts.ready;
     preparing = false;
     if (request !== generation || active || reduced.matches || document.hidden) return;
     previousFocus = document.activeElement as HTMLElement;
     window.scrollTo({ top: 0, behavior: "instant" });
-    savedOverflow = document.body.style.overflowY;
-    savedPadding = document.body.style.paddingRight;
-    const scrollbar = innerWidth - document.documentElement.clientWidth;
-    const padding = parseFloat(getComputedStyle(document.body).paddingRight) || 0;
-    document.body.style.overflowY = "hidden";
-    if (scrollbar) document.body.style.paddingRight = `${padding + scrollbar}px`;
+    savedOverflow = document.documentElement.style.overflowY;
+    document.documentElement.style.overflowY = "hidden";
     inertBefore = app.map((node) => node.inert);
     active = true;
     paused = false;

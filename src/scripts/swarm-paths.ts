@@ -50,43 +50,46 @@ export function bezier(t: number, points: number[]): number {
   return curve((low + high) / 2, y1, y2);
 }
 
-export function departureFrames(
-  stops: Stop[],
+export const SWARM_EXIT_DURATION = 1740;
+
+export function swarmExit(
+  workPoint: (time: number) => Point,
   startTime: number,
-  row: Point,
-  distance: number,
-  formation: number,
-  exit: number,
+  index: number,
+  count: number,
   bounds: Point,
-): Keyframe[] {
-  const bounded = (time: number) => {
-    const point = pathAt(stops, time);
-    return {
-      x: clamp(point.x, 10, bounds.x - 20),
-      y: clamp(point.y, 10, bounds.y - 30),
-    };
+) {
+  const gather = 420, orbit = 720, scatter = 600;
+  const center = { x: bounds.x / 2, y: bounds.y / 2 };
+  const radius = Math.min(88, Math.max(38, Math.min(bounds.x, bounds.y) * 0.13));
+  const phase = index * Math.PI * 2 / count;
+  const angularSpeed = Math.PI * 2 / orbit;
+  const circle = (angle: number) => ({ x: center.x + Math.cos(angle) * radius, y: center.y + Math.sin(angle) * radius });
+  const tangent = (angle: number) => ({ x: -Math.sin(angle) * radius * angularSpeed, y: Math.cos(angle) * radius * angularSpeed });
+  const start = workPoint(startTime), before = workPoint(startTime - 8);
+  const incoming = { x: (start.x - before.x) / 8, y: (start.y - before.y) / 8 };
+  const ring = circle(phase), velocity = tangent(phase);
+  const distance = Math.hypot(bounds.x, bounds.y) / 2 + 120;
+  const destination = { x: center.x + Math.cos(phase) * distance, y: center.y + Math.sin(phase) * distance };
+  const outward = { x: Math.cos(phase) * distance * 2 / scatter, y: Math.sin(phase) * distance * 2 / scatter };
+  const pointAt = (time: number): Point => {
+    if (time <= gather) return hermite(start, ring, incoming, velocity, time, gather);
+    if (time <= gather + orbit) return circle(phase + (time - gather) * angularSpeed);
+    return hermite(ring, destination, velocity, outward, time - gather - orbit, scatter);
   };
-  const start = bounded(startTime),
-    before = bounded(startTime - 8),
-    after = bounded(startTime + 8);
-  const incoming = {
-    x: (after.x - before.x) / 16,
-    y: (after.y - before.y) / 16,
-  };
-  const flow = { x: distance / exit, y: 0 };
-  const duration = formation + exit;
-  const samples = Array.from({ length: 61 }, (_, index) => (duration * index) / 60);
-  samples.push(formation);
-  return samples
-    .sort((a, b) => a - b)
-    .map((time) => {
-      const point =
-        time <= formation
-          ? hermite(start, row, incoming, flow, time, formation)
-          : { x: row.x + flow.x * (time - formation), y: row.y };
-      return {
-        offset: time / duration,
-        transform: `translate3d(${point.x}px,${point.y}px,0)`,
-      };
-    });
+  const times = Array.from(new Set([...Array.from({ length: 219 }, (_, n) => Math.min(SWARM_EXIT_DURATION, n * 8)), gather, gather + orbit, SWARM_EXIT_DURATION])).sort((a, b) => a - b);
+  const positions: Keyframe[] = [], rotations: Keyframe[] = [];
+  let previous = -135;
+  for (const time of times) {
+    const point = pointAt(time);
+    const before = pointAt(Math.max(0, time - 1)), after = pointAt(Math.min(SWARM_EXIT_DURATION, time + 1));
+    let angle = Math.atan2(after.y - before.y, after.x - before.x) * 180 / Math.PI;
+    while (angle - previous > 180) angle -= 360;
+    while (angle - previous < -180) angle += 360;
+    if (time < 100) angle = -135 + (angle + 135) * bezier(time / 100, [0.23, 1, 0.32, 1]);
+    previous = angle;
+    positions.push({ offset: time / SWARM_EXIT_DURATION, transform: `translate3d(${point.x}px,${point.y}px,0)` });
+    rotations.push({ offset: time / SWARM_EXIT_DURATION, transform: `rotate(${angle}deg)` });
+  }
+  return { positions, rotations };
 }
