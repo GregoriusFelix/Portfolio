@@ -13,7 +13,7 @@ const contacts = [
 <BaseLayout title={`${profile.name} | Software Engineer`}>
   <section class="hero frame" aria-labelledby="hero-title">
     <div class="hero-sheet" data-rebuild="box">
-      <div class="hero-top" data-rebuild="text"><span>Portfolio</span><span>2026 edition</span></div>
+      <div class="hero-top" data-rebuild="text"><span>Portfolio</span><button type="button" class="intro-trigger" id="replay-intro" hidden><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m7 4 9 6-9 6V4Z" /></svg>Play intro</button></div>
       <div class="name-stage">
         <div class="name-selection" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
         <h1 id="hero-title"><span data-rebuild="text">Felix</span><span data-rebuild="text">Erawan.</span></h1>
@@ -24,7 +24,7 @@ const contacts = [
         <a class="primary-button" href="#work">Open my portfolio <span aria-hidden="true">+</span></a>
       </div>
     </div>
-    <div class="hero-caption"><a href="#work">Explore the folders</a><button type="button" class="replay-button" id="replay-intro" hidden><svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 8a7 7 0 1 1 0 5M3 3v5h5" /></svg>Replay the build</button></div>
+    <div class="hero-caption"><a href="#work">Explore the folders</a><span id="intro-motion-note" hidden>Intro skipped: reduced motion is enabled.</span></div>
   </section>
   <div class="portfolio-folders frame">
     <section class="folder folder-work" id="work" aria-labelledby="work-title">
@@ -51,7 +51,7 @@ const contacts = [
     </section>
   </div>
   <div slot="overlay" id="swarm-intro" class="swarm-intro" hidden>
-    <canvas id="swarm-canvas" aria-hidden="true"></canvas>
+    <div id="swarm-scene" class="swarm-scene" aria-hidden="true" inert></div>
     <div class="intro-toolbar"><span id="intro-status" role="status">Assembling an introduction…</span><button type="button" id="skip-intro">Skip intro <span aria-hidden="true">Esc</span></button></div>
   </div>
   <script>

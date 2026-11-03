@@ -29,6 +29,8 @@ button:active, .primary-button:active { transform: translateY(1px); }
 .hero-sheet { position: relative; background: var(--color-field); color: var(--color-field-ink); border-radius: 8px; min-height: min(690px, calc(100svh - 240px)); padding: var(--space-lg) 48px 32px; display: flex; flex-direction: column; justify-content: space-between; overflow: clip; }
 .hero-top, .hero-bottom { display: flex; align-items: center; justify-content: space-between; gap: var(--space-lg); }
 .hero-top { font-size: var(--text-sm); }
+.intro-trigger { display: inline-flex; gap: var(--space-xs); align-items: center; min-height: 44px; padding: var(--space-xs) var(--space-sm); border: 1px solid currentColor; border-radius: 3px; background: var(--color-clear); color: inherit; font-size: inherit; }
+.intro-trigger:active { transform: translateY(1px); }
 .name-stage { position: relative; margin: 32px 0 var(--space-xl); align-self: flex-start; width: min(100%, 950px); }
 h1 { font-size: clamp(84px, 13.7vw, 196px); font-weight: 800; line-height: 0.88; letter-spacing: -0.035em; }
 .name-stage h1 { padding: var(--space-sm) var(--space-md) var(--space-lg); }
@@ -46,7 +48,7 @@ h1 { font-size: clamp(84px, 13.7vw, 196px); font-weight: 800; line-height: 0.88;
 .hero-bottom p span { font-size: var(--text-sm); }
 .primary-button { display: inline-flex; align-items: center; justify-content: space-between; gap: var(--space-xl); min-height: 50px; padding: var(--space-sm) 20px; background: var(--color-field-ink); color: var(--color-field); border-radius: 3px; text-decoration: none; white-space: nowrap; font-size: var(--text-sm); }
 .primary-button span { font-size: 24px; line-height: 1; }
-.hero-caption { min-height: 56px; display: flex; justify-content: space-between; align-items: center; gap: var(--space-md); font-size: var(--text-sm); color: var(--color-muted); }
+.hero-caption { min-height: 56px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--space-md); font-size: var(--text-sm); color: var(--color-muted); }
 .hero-caption > a { display: inline-flex; min-height: 48px; align-items: center; }
 .replay-button { display: inline-flex; align-items: center; gap: var(--space-xs); min-height: 48px; border: 0; background: var(--color-clear); color: var(--color-ink); padding: 0 var(--space-2xs); font-size: inherit; }
 .portfolio-folders { padding-top: 0; }
@@ -92,7 +94,25 @@ h3 { font-size: var(--text-xl); font-weight: 600; line-height: 1.2; }
 .section h1 { font-size: clamp(40px, 7vw, 96px); line-height: 1.05; margin-bottom: var(--space-lg); }
 .project-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-xl); padding-top: var(--space-xl); }
 .swarm-intro { position: fixed; inset: 0; z-index: 400; background: var(--color-paper); }
-.swarm-intro canvas { width: 100%; height: 100%; display: block; }
+.swarm-scene { position: absolute; inset: 0; overflow: clip; pointer-events: none; contain: layout style; }
+.swarm-surface, .swarm-outline, .swarm-word-cover { position: absolute; pointer-events: none; }
+.swarm-surface, .swarm-word-cover { overflow: clip; }
+.swarm-surface-fill, .swarm-word-ink { position: absolute; inset: 0; background: var(--color-field); }
+.swarm-outline { color: var(--color-field); }
+.swarm-edge { position: absolute; overflow: clip; }
+.swarm-edge span { position: absolute; inset: 0; background: currentColor; }
+.swarm-edge-top { left: 0; right: 0; top: 0; height: 1px; }
+.swarm-edge-right { top: 0; bottom: 0; right: 0; width: 1px; }
+.swarm-edge-bottom { left: 0; right: 0; bottom: 0; height: 1px; }
+.swarm-edge-left { top: 0; bottom: 0; left: 0; width: 1px; }
+.swarm-type-caret { position: absolute; width: 2px; background: var(--color-field-ink); }
+.swarm-mark { position: absolute; font-size: 56px; font-weight: 800; letter-spacing: -0.04em; line-height: 1; }
+.swarm-pointer { --pointer-color: var(--color-cursor-1); position: absolute; left: 0; top: 0; width: 24px; height: 30px; color: var(--pointer-color); }
+.swarm-pointer[data-tone="1"] { --pointer-color: var(--color-cursor-2); }
+.swarm-pointer[data-tone="2"] { --pointer-color: var(--color-cursor-3); }
+.swarm-pointer[data-tone="3"] { --pointer-color: var(--color-field-ink); }
+.swarm-pointer svg { fill: currentColor; stroke: var(--color-ink); stroke-width: 1.2px; }
+.swarm-pointer-label { position: absolute; left: 0; top: 25px; padding: var(--space-2xs) var(--space-xs); background: var(--pointer-color); color: var(--color-ink); font-size: 11px; font-weight: 600; white-space: nowrap; line-height: 1; border-radius: 2px; }
 .intro-toolbar { position: absolute; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); display: flex; gap: var(--space-lg); align-items: center; width: max-content; max-width: calc(100% - 32px); padding: var(--space-2xs) var(--space-xs) var(--space-2xs) 20px; background: var(--color-ink); color: var(--color-paper); border-radius: 5px; font-size: var(--text-sm); }
 .intro-toolbar button { display: flex; align-items: center; gap: var(--space-md); padding: var(--space-xs) var(--space-sm); min-height: 44px; border: 0; border-radius: 3px; background: var(--color-paper); color: var(--color-ink); white-space: nowrap; }
 .intro-toolbar button span { font-size: var(--text-xs); color: var(--color-muted); }

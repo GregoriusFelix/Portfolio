@@ -21,9 +21,9 @@ Copy `src/content/work/sample-project.md`, rename it, replace the sample text an
 
 ## Intro behavior
 
-The intro runs once per browser session and can be replayed from the hero. Skip or Escape ends it immediately. Reduced-motion preferences, anchor visits and disabled JavaScript bypass it. Resizing or hiding the tab safely ends playback. Navigation remains fully usable after completion. There is no audio, tracking, external animation package, or extension installation.
+The intro runs once per browser session and can be replayed with the Play intro button at the top of the blue hero. Open `/?intro=1` to play it regardless of session history. Skip or Escape ends it immediately. Reduced-motion preferences, ordinary anchor visits and disabled JavaScript bypass it. Reduced-motion users see an explanation beneath the hero. Resizing or hiding the tab safely ends playback. Navigation remains fully usable after completion. There is no audio, tracking, external animation package, or extension installation.
 
-The implementation is original, inspired by the cursor-building concept in Dhvanil Patel's Swarm Rebuild and Joel Califa's Swarm. No source code from either project is included.
+The implementation is original, inspired by the cursor-building concept in Dhvanil Patel's Swarm Rebuild and Joel Califa's Swarm. No source code from either project is included. The intro uses temporary, inert DOM replicas of the actual page, continuous cursor paths sampled before playback, and synchronized native Web Animations API timelines. Only transforms and opacity animate; text is revealed by moving cover layers rather than redrawing glyphs in a canvas. All temporary nodes and animations are removed on completion or interruption.
 
 ## Design and verification
 
