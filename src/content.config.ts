@@ -13,6 +13,7 @@ const work = defineCollection({
     liveUrl: z.string().url().optional(),
     repoUrl: z.string().url().optional(),
     featured: z.boolean().default(false),
+    draft: z.boolean().default(false),
   }),
 });
 

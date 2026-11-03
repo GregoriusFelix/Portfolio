@@ -1,4 +1,4 @@
----
+﻿---
 interface Props {
   slug: string;
   title: string;
@@ -8,24 +8,15 @@ interface Props {
 }
 const { slug, title, summary, tools, year } = Astro.props;
 ---
-<a class="card" href={`/work/${slug}`}>
-  <div class="thumb" aria-hidden="true"></div>
+<a class="project-card" href={`/work/${slug}`}>
   <h3>{title}</h3>
-  <p class="muted">{summary}</p>
-  <p class="meta muted">{year}, {tools.join(', ')}</p>
+  <p>{summary}</p>
+  <p class="project-meta">{year}, {tools.join(', ')}</p>
 </a>
-
 <style>
-  .card { display: block; text-decoration: none; }
-  .thumb {
-    aspect-ratio: 4 / 3;
-    background: var(--line);
-    border-radius: 0.5rem;
-    margin-bottom: 1rem;
-    transition: background 0.2s;
-  }
-  .card:hover .thumb { background: var(--accent); }
-  h3 { font-size: 1.25rem; margin-bottom: 0.25rem; }
-  p { margin: 0 0 0.5rem; }
-  .meta { font-size: 0.9rem; }
+  .project-card { display: block; padding-block: var(--space-lg); border-top: 1px solid currentColor; text-decoration: none; }
+  h3 { font-size: var(--text-xl); margin-bottom: var(--space-sm); }
+  p { margin-bottom: var(--space-xs); }
+  .project-meta { font-size: var(--text-sm); }
+  @media (hover: hover) and (pointer: fine) { .project-card:hover h3 { text-decoration: underline; text-underline-offset: 4px; } }
 </style>

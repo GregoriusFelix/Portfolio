@@ -7,6 +7,7 @@ tools: [Figma, React, Vite]
 liveUrl: https://example.com
 repoUrl: https://github.com/yourname/habit-tracker
 featured: true
+draft: true
 ---
 
 ## The problem

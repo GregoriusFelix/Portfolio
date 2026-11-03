@@ -1,0 +1,6 @@
+﻿{
+  "scanned": "2026-11-03",
+  "findings": {"framework":"Astro 5, package.json","fonts":"Bricolage Grotesque, BaseLayout.astro","palette":"User-approved blue and white","material":"Gregorius Felix Caton Erawan, Software Engineer; projects pending"},
+  "preserve": ["Astro", "Markdown content collection", "existing routes", "unrelated .vscode/mcp.json changes"],
+  "introduce": ["Folder index", "original cursor-build intro", "central profile configuration", "draft project filtering"]
+}

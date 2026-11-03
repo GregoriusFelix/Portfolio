@@ -1,0 +1,21 @@
+﻿[
+  {
+    "date":"2026-11-03",
+    "shape":"personal folder index",
+    "theme":"custom",
+    "axes":"light/grotesk-heavy/chromatic-blue",
+    "hero":"oversized selected name on blue",
+    "nav":"name and three anchors",
+    "footer":"colophon",
+    "imagery":"none; actual name and layout are built by cursors",
+    "photos":[],
+    "entry":"identity",
+    "fingerprint":["name poster","blue field","offset folder tabs","empty project folder","short about","pending contact"],
+    "sections":["identity","work","about","contact"],
+    "signature":"cursor-built name and folder index",
+    "waived":[59],
+    "prompt":"Software engineer portfolio using supplied blue and white folder references and an original Swarm Rebuild inspired introduction",
+    "reviews":{"hero":"3 findings resolved","finish":"2 findings resolved"},
+    "verification":"production build and browser interaction checks passed; physical phone check remains"
+  }
+]
