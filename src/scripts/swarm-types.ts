@@ -3,6 +3,6 @@ export type CursorTask = {
   start: number;
   duration: number;
   label: string;
-  tool: "arrow" | "crosshair" | "ibeam";
+  tool: "arrow" | "crosshair" | "ibeam" | "eyedropper";
   point: (progress: number) => Point;
 };

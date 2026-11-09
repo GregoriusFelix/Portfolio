@@ -27,7 +27,8 @@ export function initSwarmIntro() {
     generation = 0,
     monitorFrame = 0,
     buildDuration = TOTAL,
-    contentDuration = TOTAL;
+    contentDuration = TOTAL,
+    scanDuration = 900;
   let animations: Animation[] = [],
     jobs: Job[] = [];
   let master: Animation | undefined;
@@ -76,9 +77,9 @@ export function initSwarmIntro() {
     if (!active || !master || paused) return;
     const time = Number(master.currentTime ?? 0);
     const done = jobs.filter((job) => time >= job.start + job.duration).length;
-    const message = time < 900 ? "Scanning page…" : time >= contentDuration ? "Entering site…" : `${AGENTS} agents`;
+    const message = time < scanDuration ? "Scanning page…" : time >= contentDuration ? "Entering site…" : `${AGENTS} agents`;
     if (status!.textContent !== message) status!.textContent = message;
-    const count = time < 900 ? "" : `${done} / ${jobs.length} layers`;
+    const count = time < scanDuration ? "" : `${done} / ${jobs.length} layers`;
     if (layers!.textContent !== count) {
       layers!.textContent = count;
       progressFill!.style.transform = `scaleX(${done / Math.max(1, jobs.length)})`;
@@ -119,6 +120,7 @@ export function initSwarmIntro() {
     animations = built.animations;
     jobs = built.jobs;
     contentDuration = built.contentDuration;
+    scanDuration = built.scanDuration;
     drawCurve = built.drawCurve;
     scene!.replaceChildren(built.fragment);
     app.forEach((node) => {
