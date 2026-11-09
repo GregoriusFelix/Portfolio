@@ -82,10 +82,15 @@ button:active,
   text-decoration: none;
 }
 .monogram {
-  font-size: 40px;
-  font-weight: 800;
-  letter-spacing: -0.06em;
-  line-height: 1;
+  display: block;
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+}
+.monogram img,
+.site-footer img,
+.swarm-scan-mark img {
+  display: block;
 }
 .identity-name {
   font-size: var(--text-sm);

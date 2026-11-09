@@ -589,7 +589,7 @@ export function createSwarmScene() {
 
   const mark = document.createElement("div");
   mark.className = "swarm-mark swarm-scan-mark";
-  mark.textContent = "gf.";
+  mark.innerHTML = `<img src="/logo.svg" width="56" height="56" alt=""/>`;
   mark.style.left = `${innerWidth / 2}px`;
   mark.style.top = `${innerHeight / 2}px`;
   windowOf(mark, 0, 950);

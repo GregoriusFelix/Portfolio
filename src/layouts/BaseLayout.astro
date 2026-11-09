@@ -24,7 +24,7 @@ const { title, description = `${profile.name}, software engineer. A personal por
     <main id="main"><slot /></main>
     <slot name="overlay" />
     <footer class="site-footer frame">
-      <a href="/" aria-label={`${profile.shortName}, home`}>gf.</a>
+      <a href="/" aria-label={`${profile.shortName}, home`}><img src="/logo.svg" width="32" height="32" alt="" /></a>
       <p>&copy; {new Date().getFullYear()} {profile.name}</p>
       <a href="#main">Back to top</a>
     </footer>
